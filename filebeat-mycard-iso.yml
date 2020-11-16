@@ -1,0 +1,31 @@
+filebeat.inputs:
+
+- type: log
+  enabled: true
+  paths:
+    - D:\Dokumen\LOG_VA_CC\iso.out
+  fields: {app_log: va_cc_iso}
+  tail_files: true
+  ignore_older: 24h
+  close_removed: true
+  clean_removed: true
+  multiline.pattern: '\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}.\d{3}'
+  multiline.negate: true
+  multiline.match: after
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: true
+
+output.redis:
+  hosts: ["192.168.158.29:6379"]
+  key: "va_cc_iso"
+  db: 0
+  timeout: 5
+  data_type: "list"
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - drop_fields:
+      fields: ["ecs", "agent", "flags", "offset", "tags"]
